@@ -1,0 +1,39 @@
+name: SBOM generate
+
+on:
+    workflow_call:
+
+jobs:
+    sbom:
+      name: SBOM generate
+      runs-on: ubuntu-latest
+      steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      
+      - name: Snyk installation 
+        run: |
+          npm install -g snyk
+          snyk auth ${{ secrets.SNYK_TOKEN }}
+          
+      - name: Sbom with Snyk Cyclonedx Format
+        run: |
+          snyk sbom --format=cyclonedx1.4+json --json-file-output=sbom_snyk.json
+
+      - name: Upload SBOM as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-cyclonedx
+          path: sbom_snyk.json
+        

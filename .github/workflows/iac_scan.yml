@@ -1,0 +1,47 @@
+name: Code Scan
+
+on:
+  workflow_call:
+
+jobs:
+  run_iac_scan:
+    permissions: write-all
+    name: Run IAC Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Snyk CLI
+        run: npm install snyk -g
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}   
+
+      - name: Run SCA Scan
+        run: snyk iac test --sarif-file-output=snyk_iac_sarif.json || || echo "SNYK_FAILED=true" >> $GITHUB_ENV
+        continue-on-error: true
+
+      - name: Upload Snyk results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk_iac_results
+          path: snyk_iac_sarif.json
+      
+      - name: Upload SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk_iac_sarif.json
+          category: iac-security
+
+      - name: Fail if vulnerabilities were found
+        if: env.SNYK_FAILED == 'true'
+        run: exit 1

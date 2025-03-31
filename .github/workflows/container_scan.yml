@@ -1,0 +1,62 @@
+name: Container Scan
+
+on:
+  workflow_call:
+
+jobs:
+  run_container_scan:
+    permissions: write-all
+    name: Run Container Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pytest
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Build Docker image
+        run: docker build -t app:${{ github.sha }} .
+
+      - name: Install Snyk CLI
+        run: npm install snyk -g
+
+      - name: Authenticate Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Container Scan
+        run: |
+          snyk container test app:${{ github.sha }} --file=Dockerfile --sarif-file-output=snyk_container_sarif.json || echo "SNYK_FAILED=true" >> $GITHUB_ENV
+          
+        continue-on-error: true
+      - name: Updating Sarif File
+        run: |
+           jq '.runs[].tool.driver.rules[] | keys' snyk_container_sarif.json
+           jq 'walk(if type == "object" and has("security-severity") then .["security-severity"] |= if . == "null" or . == "undefined" then "0.0" else . end else . end)' snyk_container_sarif.json > tmp.json && mv tmp.json snyk_container_sarif.json
+           grep "security-severity" snyk_container_sarif.json
+
+      - name: Upload Snyk Container results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk_container_results 
+          path: snyk_container_sarif.json
+
+      - name: Upload Container SARIF file
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: snyk_container_sarif.json
+          category: container-security
+          
+      - name: Fail if vulnerabilities were found
+        if: env.SNYK_FAILED == 'true'
+        run: exit 1
