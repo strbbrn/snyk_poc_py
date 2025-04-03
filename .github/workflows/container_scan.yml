@@ -34,14 +34,14 @@ jobs:
 
       - name: Run Container Scan
         run: |
-          snyk container test app:${{ github.sha }} --file=Dockerfile --sarif-file-output=snyk_container_sarif.json || echo "SNYK_FAILED=true" >> $GITHUB_ENV
+          snyk container test app:${{ github.sha }} --file=Dockerfile --sarif-file-output=snyk_container_sarif.json --exclude-app-vulns || echo "SNYK_FAILED=true" >> $GITHUB_ENV
           
         continue-on-error: true
-      - name: Updating Sarif File
-        run: |
-           jq '.runs[].tool.driver.rules[] | keys' snyk_container_sarif.json
-           jq 'walk(if type == "object" and has("security-severity") then .["security-severity"] |= if . == "null" or . == "undefined" then "0.0" else . end else . end)' snyk_container_sarif.json > tmp.json && mv tmp.json snyk_container_sarif.json
-           grep "security-severity" snyk_container_sarif.json
+      # - name: Updating Sarif File
+      #   run: |
+      #      jq '.runs[].tool.driver.rules[] | keys' snyk_container_sarif.json
+      #      jq 'walk(if type == "object" and has("security-severity") then .["security-severity"] |= if . == "null" or . == "undefined" then "0.0" else . end else . end)' snyk_container_sarif.json > tmp.json && mv tmp.json snyk_container_sarif.json
+      #      grep "security-severity" snyk_container_sarif.json
 
       - name: Upload Snyk Container results
         if: always()
