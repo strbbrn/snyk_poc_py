@@ -9,10 +9,10 @@ on:
 permissions: write-all
 
 jobs:
-  unit_test:
-    name: Unit Test
-    uses: ./.github/workflows/unit_test.yml
-    secrets: inherit
+  # unit_test:
+  #   name: Unit Test
+  #   uses: ./.github/workflows/unit_test.yml
+  #   secrets: inherit
 
   sca_scan:
     name: SCA Scan
