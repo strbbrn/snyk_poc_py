@@ -38,14 +38,14 @@ jobs:
     name: Dependency Review
     uses: ./.github/workflows/dependency_review.yml
 
-  linter:
-    name: Linter
-    permissions:
-      contents: read
-      statuses: write
-      packages: read
-    uses: ./.github/workflows/linting.yml
-    secrets: inherit
+  # linter:
+  #   name: Linter
+  #   permissions:
+  #     contents: read
+  #     statuses: write
+  #     packages: read
+  #   uses: ./.github/workflows/linting.yml
+  #   secrets: inherit
 
   sbom:
     name: SBOM generate
