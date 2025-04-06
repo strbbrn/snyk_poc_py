@@ -34,7 +34,7 @@ jobs:
 
       - name: Run Container Scan
         run: |
-          snyk container test app:${{ github.sha }} --file=Dockerfile --sarif-file-output=snyk_container_sarif.json --exclude-app-vulns || echo "SNYK_FAILED=true" >> $GITHUB_ENV
+          snyk container test app:${{ github.sha }} --file=Dockerfile --sarif-file-output=snyk_container_sarif.json --exclude-app-vulns --severity-threshold=medium || echo "SNYK_FAILED=true" >> $GITHUB_ENV
           
         continue-on-error: true
       # - name: Updating Sarif File

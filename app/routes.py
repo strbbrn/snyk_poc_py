@@ -2,7 +2,6 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from .models import Todo
 
 routes = Blueprint('routes', __name__)
-
 @routes.route('/')
 def index():
     todos = Todo.get_all()
@@ -12,7 +11,9 @@ def index():
 def add_todo():
     title = request.form.get('title')
     if title:
-        Todo.create(title)
+        new_todo = Todo(title=title)
+        db.session.add(new_todo)
+        db.session.commit()
     return redirect(url_for('routes.index'))
 
 @routes.route('/update/<int:todo_id>', methods=['POST'])
