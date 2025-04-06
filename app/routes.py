@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from .models import Todo
 
 routes = Blueprint('routes', __name__)
-my_api_key = 'bfa1c50c-9a3f-4709-bd4b-f7db3c5e4f5e'
+
 @routes.route('/')
 def index():
     todos = Todo.get_all()
