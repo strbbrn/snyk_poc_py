@@ -1,5 +1,5 @@
-# FROM python:3.9-slim
-FROM python:3.14-rc-alpine5.6.2-r1
+FROM python:3.14-rc-alpine3.20
+RUN apk update && apk add --no-cache xz>=5.6.2-r1
 WORKDIR /app
 
 COPY requirements.txt .
