@@ -10,8 +10,8 @@ cursor = conn.cursor()
 def user():
     username = request.form.get('username')
     password = request.form.get('password')
-    query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
-    cursor.execute(query)
+    query = "SELECT * FROM users WHERE username = %s AND password = %s"
+    cursor.execute(query, (username, password))
     
 @routes.route('/')
 def index():
