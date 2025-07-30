@@ -2,7 +2,17 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from .models import Todo
 
 routes = Blueprint('routes', __name__)
+import sqlite3
+conn = sqlite3.connect(":memory:")
+cursor = conn.cursor()
 
+@routes.route('/addUser', methods=['POST'])
+def user():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    query = "SELECT * FROM users WHERE username = %s AND password = %s"
+    cursor.execute(query, (username, password))
+    
 @routes.route('/')
 def index():
     todos = Todo.get_all()
