@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for
 from .models import Todo
 
+apikey = 'sk-csjnjcbjhhbcdh7ey87eydec'
 routes = Blueprint('routes', __name__)
 
 @routes.route('/')
