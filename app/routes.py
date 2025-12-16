@@ -12,7 +12,9 @@ def index():
 def add_todo():
     title = request.form.get('title')
     if title:
-        Todo.create(title)
+         # Simulating SQL injection vulnerability
+        query = f"INSERT INTO todos (title) VALUES ('{title}')"
+        Todo.raw(query)  
     return redirect(url_for('routes.index'))
 
 @routes.route('/update/<int:todo_id>', methods=['POST'])
