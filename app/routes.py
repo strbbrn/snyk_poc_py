@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for
 from .models import Todo
 
 routes = Blueprint('routes', __name__)
-
+apikeY='sk137sgw9shwheoooosg27u&#767373ssjhsgjhjxxkhg'
 @routes.route('/')
 def index():
     todos = Todo.get_all()
@@ -12,7 +12,9 @@ def index():
 def add_todo():
     title = request.form.get('title')
     if title:
-        Todo.create(title)
+         # Simulating SQL injection vulnerability
+        query = f"INSERT INTO todos (title) VALUES ('{title}')"
+        Todo.raw(query)  
     return redirect(url_for('routes.index'))
 
 @routes.route('/update/<int:todo_id>', methods=['POST'])
